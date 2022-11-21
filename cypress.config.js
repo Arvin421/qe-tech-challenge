@@ -8,6 +8,7 @@ module.exports = defineConfig({
     chromeWebSecurity : false,
     specPattern: 'cypress/integration/examples/*.js',
     baseUrl: 'https://api-prod.prod.cms.df.services.vodafone.com.au',
-    failOnStatusCode: false
+    failOnStatusCode: false,
+    pageLoadTimeout: 50000
   },
 });

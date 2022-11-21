@@ -3,7 +3,7 @@ describe('Cypress Practice', function () {
     it('Verify All Plan', function ()  {
         cy.request({ //get request
             method : 'GET',
-            url: "plan/postpaid-simo?serviceType=New",
+            url: "plan/postpaid-simo?serviceType=New"
         })
         .then((response) => {
             const allPlans =  response.body.planListing.plans //get response body
@@ -11,6 +11,7 @@ describe('Cypress Practice', function () {
             Cypress.on('uncaught:exception', (err, runnable) => {
                 return false;
             })
+            //for loop
         cy.VerifyAllCarts(allPlans)
         })
     })

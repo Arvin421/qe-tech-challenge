@@ -1,29 +1,3 @@
-// ***********************************************
-// This example commands.js shows you how to
-// create various custom commands and overwrite
-// existing commands.
-//
-// For more comprehensive examples of custom
-// commands please read more here:
-// https://on.cypress.io/custom-commands
-// ***********************************************
-//
-//
-// -- This is a parent command --
-// Cypress.Commands.add('login', (email, password) => { ... })
-//
-//
-// -- This is a child command --
-// Cypress.Commands.add('drag', { prevSubject: 'element'}, (subject, options) => { ... })
-//
-//
-// -- This is a dual command --
-// Cypress.Commands.add('dismiss', { prevSubject: 'optional'}, (subject, options) => { ... })
-//
-//
-// -- This will overwrite an existing command --
-// Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
-
 Cypress.Commands.add('VerifyAllCarts', (allPlans) => {
     for(let i=0; i<allPlans.length; i++) { //loop based on get result plans
         cy.get('[data-testid="plan-card-'+allPlans[i].id) //check if plan id matches the get and fron-end plan id
@@ -43,4 +17,86 @@ Cypress.Commands.add('VerifyAllCarts', (allPlans) => {
         cy.get('[data-testid="remove-bundle-cta"]').click()
         cy.visit("https://www.vodafone.com.au/plans/sim-only")
     }  
+})
+
+Cypress.Commands.add('NovusIINET_Login', () => {
+    cy.visit("https://novus-ui-staging.iinet.net.au/novus-ui/iinet/index#/customermanagement/find");
+    cy.get("[name='username']").type('arvin.gumabay')
+    cy.get("[name='password']").type('Kambingloser123')
+    cy.get("[type='SUBMIT']").click() 
+})
+
+Cypress.Commands.add('ToolboxLogin', () => {
+    cy.request({
+        method: 'GET',
+        url : "novus-ui-staging.iinet.net.au/novus-ui/iinet/novus/customer/management/1183369030/toolbox/login",
+    })
+    .then((response) => {
+        const tbrequest = response.body
+        const tblogin = tbrequest.replace('&csrname=arvin.gumabay', '')
+        Cypress.on('uncaught:exception', (err, runnable) => {
+            return false;
+        })
+        cy.visit(tblogin)
+    })
+})
+
+Cypress.Commands.add('Check_Verify_identity_Page', () => {
+    cy.get('[class="ng-star-inserted"]')
+    .contains('Verify identity').should('be.visible')
+    .get('[class="ng-star-inserted"]')
+    .contains('Choose a mobile number to receive a security code to verify your identity.').should('be.visible')
+    .get('[class="form-row-container"]')
+    .contains('Send code').should('be.visible')
+    .get('[id="cancel-button"]')
+    .contains('Cancel').should('be.visible')
+    .get('[id="send-button"]').click()
+})
+
+Cypress.Commands.add('Check_mobile_number', () => {
+    cy.request({ //get request
+        method : 'GET',
+        url: "http://smsgwtst-cro-app-01.it.tpgtelecom.com.au:8211/api/v1/messages?direction=MT&&sort=created,desc",
+        auth: {
+            'user': 'accc',
+            'pass': 'password'
+        }
+    })   
+        .then((response) => {
+            var mobilenumber =  response.body.content[0].to
+            const changeprefix = mobilenumber.replace(mobilenumber.substring(0,3), '0')
+            const encryptnumber = changeprefix.replace(changeprefix.substring(2,7), 'XX XXX ')
+            cy.wrap(encryptnumber)
+        })  
+})
+
+Cypress.Commands.add('Check_Enter_code_Page', () => {
+    cy.get('[class="mat-card mat-focus-indicator small-card ng-star-inserted"]')
+    .get('[class="mat-card-content"]')
+    .get('[class="ng-star-inserted"]').contains(' We sent a code to your mobile number ').should('be.visible')
+    .get('[class="ng-star-inserted"]').contains('Enter code').should('be.visible')
+    .get('[class="ng-star-inserted"]').contains(' Please enter your code to verify your identity. Your code will expire in 5 minutes.').should('be.visible')
+    .get('[class="ng-star-inserted"]').contains('Code').should('be.visible')
+    .get('[class="form-row-container"]').contains("Verify").should('be.visible')
+    .get('[class="form-row-container"]').contains("Back").should('be.visible')
+    .get('[class="ng-star-inserted"]').get('[class="resend-paragraph ng-star-inserted"]').contains("Didn't receive a code?").should('be.visible')
+    .get('[class="ng-star-inserted"]').get('[class="resend-paragraph ng-star-inserted"]').contains("Resend code").should('be.visible')
+})
+
+Cypress.Commands.add('Check_Invalid_Code', () => {
+    cy.get('[id="otpCode0"]').type('000000')
+    .get('[id=verify-button]').click()
+    .get('[class="mat-card-content"]')
+    .get('[class="ng-star-inserted"]')
+    .contains('Security code is invalid.').should('be.visible')
+})
+
+Cypress.Commands.add('Check_Invalid_Code_MultipleAttempts', () => {
+    cy.get('[id="otpCode0"]').type('111111')
+    .get('[id=verify-button]').click()
+    .get('[class="mat-card-content"]')
+    .get('[class="ng-star-inserted"]')
+    .get('[class="mat-error ng-star-inserted"]')
+    .get('[class="ng-star-inserted"]')
+    .contains(' Security code is invalid. Please try again. You have 3 attempts remaining before we temporarily lock your account. ').should('be.visible')
 })

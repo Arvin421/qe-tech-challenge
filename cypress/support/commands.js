@@ -83,9 +83,17 @@ Cypress.Commands.add('Check_Enter_code_Page', () => {
     .get('[class="ng-star-inserted"]').get('[class="resend-paragraph ng-star-inserted"]').contains("Resend code").should('be.visible')
 })
 
-Cypress.Commands.add('Check_Invalid_Code', () => {
+Cypress.Commands.add('Check_Invalid_Code_Toolbox', () => {
     cy.get('[id="otpCode0"]').type('000000')
     .get('[id=verify-button]').click()
+    .get('[class="mat-card-content"]')
+    .get('[class="ng-star-inserted"]')
+    .contains('Security code is invalid.').should('be.visible')
+})
+
+Cypress.Commands.add('Check_Invalid_Code_OC', () => {
+    cy.get('[id="mat-input-2"]').click({force: true}).type('000000')
+    .get('[id=verify-button]').click({force: true})
     .get('[class="mat-card-content"]')
     .get('[class="ng-star-inserted"]')
     .contains('Security code is invalid.').should('be.visible')
@@ -99,4 +107,25 @@ Cypress.Commands.add('Check_Invalid_Code_MultipleAttempts', () => {
     .get('[class="mat-error ng-star-inserted"]')
     .get('[class="ng-star-inserted"]')
     .contains(' Security code is invalid. Please try again. You have 3 attempts remaining before we temporarily lock your account. ').should('be.visible')
+})
+
+Cypress.Commands.add('Check_Invalid_Code_MultipleAttempts_OC', () => {
+    cy.get('[id="mat-input-2"]').click({force: true}).type('000000')
+    .get('[id=verify-button]').click({force: true})
+    .get('[class="mat-card-content"]')
+    .get('[class="ng-star-inserted"]')
+    //.get('[class="mat-error ng-star-inserted"]')
+    //.get('[class="ng-star-inserted"]')
+    //.get('[class="mat-error-1"]')
+    .contains('Security code is invalid.').should('be.visible')
+})
+
+Cypress.Commands.add('OCPage_Login', () => {
+cy.visit("https://iinet-corpwebpre.it.tpgtelecom.com.au/sim-only-plans/tst")
+cy.get('[id="mat-tab-label-0-1"]').click()
+cy.get('[class="addresscheck__fieldwrap"]')
+.get('[id="mat-input-0"]').type("testmfaiinet")
+.get('[class="addresscheck__fieldwrap"]')
+.get('[id="mat-input-1"]').click({force: true}).type("Pass12345")
+.get('[class="text-left"]').contains("Login").click()
 })
